@@ -65,12 +65,16 @@ lat_midi = lat_max / 127
 long_max = max(long_)
 long_midi = long_max / 127
 
+time_max = max(time_diff)
+time_midi = time_max / 127
+
 for long, lat, time_difference in zip(long_, lat, time_diff):
     x =  lat // lat_midi  
     y = long // long_midi
+    z = time_difference // time_midi
     param1.value = round(x)
     param2.value = round(y)
-    param3.value = int(time_difference * 10) 
+    param3.value = round(z)
     # print(param2.value)
     print("this is the time: " + str(time_difference * 10))
     outport.send(param1)   
