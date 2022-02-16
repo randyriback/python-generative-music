@@ -24,14 +24,14 @@ class Switch_on:
     def toggle_on(self):
         start = time() 
         elapsed = 0
-        while elapsed < self.time_limit: 
-            self.f(127)
-            sleep(.1)
+        if elapsed > self.time_limit: 
+            self.f(0)
             elapsed = time() - start
+            sleep(.001)
         else:
-            self.f(1)
-            sleep(.1)
-            elapsed = time() - start            
+            self.f(127)
+            elapsed = time() - start  
+            sleep(.001)          
 
 def loop(f, time_limit=20):
     start = time()
@@ -39,4 +39,3 @@ def loop(f, time_limit=20):
     while elapsed < time_limit:
         f()
         elapsed = time() - start 
-    return f

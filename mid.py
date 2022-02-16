@@ -9,22 +9,31 @@ import numpy as np
 outport = mido.open_output('IAC Driver randymidi') 
 TIME_LIMIT = 1000
 
-tom = Message('note_on', channel=1, note=68, velocity=1, time=1)
-tom2 = Message('note_on', channel=1, note=69, velocity=1, time=1)
-tabla = Message('note_on', channel=1, note=71, velocity=1, time=1)
-tabla2 = Message('note_on', channel=1, note=72, velocity=1, time=1)
-tabla3 = Message('note_on', channel=1, note=74, velocity=1, time=1)
+def make_note(channel, note):
+    return Message('note_on', channel=channel, note=note, velocity=1, time=1)
+
+def make_cc(channel, control, value):
+    return Message('control_change', channel=channel, control=control, value=value)
+
+shaker = make_note(1, 123)
+shaker2 = make_note(1, 124)
+tom = make_note(1, 68)
+tom2 = make_note(1,69)
+tabla = make_note(1, 71)
+tabla2 = make_note(1, 72)
+tabla3 = make_note(1, 74)
 kit = [tom, tom2, tabla]
 
-stab = Message('note_on', channel=3, note=77, velocity=100, time=0)
-stab2 = Message('note_on', channel=3, note=79, velocity=100, time=0)
+stab = make_note(3, 77)
+stab2 = make_note(3, 79)
 sub = [stab, stab2]
 
-filter = Message('control_change', channel=1, control=55, value=1)
-stretch = Message('control_change', channel=2, control=51, value=1) 
-convolution = Message('control_change', channel=1, control=56, value=1)
-grainwetdry = Message('control_change', channel=1, control=57, value=1)
-reaktor = Message('control_change', channel=1, control=60, value=1)
+filter = make_cc(1, 55, 1)
+on = make_cc(2, 51, 1)
+convolution = make_cc(1, 56, 1)
+grainwetdry = make_cc(1, 57, 1)
+reaktor = make_cc(1, 60, 1)
+looperator = make_cc(1, 90, 1)
 
 def sweep(i):
     filter.value = i
@@ -54,21 +63,24 @@ def drums():
 
 def bass():
     outport.send(random.choice(sub))
-    sleep(random.uniform(8.0, 16.7))
+    sleep(8)
 
-def stretchfunc(i):
-    stretch.value = i
-    outport.send(stretch)
+def play_func(i):
+    on.value = i
+    outport.send(on)
 
-
+def looperator_mix(i):
+    looperator.value = i
+    outport.send(looperator)
+    sleep(.4)  
 
 if __name__ == '__main__': 
     lfo = LFO(sweep, 20, 70)
-    lfo2 = LFO(con, 98, 120)
+    lfo2 = LFO(con, 70, 90)
     lfo3 = LFO(grain, 25, 100)
     lfo4 = LFO(reaktor_filter, 1, 127)
-    # on = Switch_on(stretchfunc, TIME_LIMIT) 
-    # on.toggle_on
+    lfo5 = LFO(looperator_mix, 20, 80)
+    play = Switch_on(play_func, TIME_LIMIT) 
 
     t1 = threading.Thread(target=loop, args=(lfo.step, TIME_LIMIT))
     t2 = threading.Thread(target=loop, args=(drums, TIME_LIMIT))
@@ -77,6 +89,8 @@ if __name__ == '__main__':
     t5 = threading.Thread(target=loop, args=(lfo3.step, TIME_LIMIT))
     t5 = threading.Thread(target=loop, args=(lfo3.step, TIME_LIMIT))
     t6 = threading.Thread(target=loop, args=(lfo4.step, TIME_LIMIT))
+    t7 = threading.Thread(target=play.toggle_on)
+    t8 = threading.Thread(target=loop, args=(lfo5.step, TIME_LIMIT))
 
     t1.start()
     t2.start()
@@ -84,3 +98,5 @@ if __name__ == '__main__':
     t4.start()
     t5.start()
     t6.start()
+    t7.start()
+    t8.start()

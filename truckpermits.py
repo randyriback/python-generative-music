@@ -72,9 +72,9 @@ for long, lat, time_difference in zip(long_, lat, time_diff):
     x =  lat // lat_midi  
     y = long // long_midi
     z = time_difference // time_midi
-    param1.value = round(x)
-    param2.value = round(y)
-    param3.value = round(z)
+    param1.value = round(x) #filter cutoff
+    param2.value = round(y) #delay repeat time
+    param3.value = round(z) #sampler pitch
     # print(param2.value)
     print("this is the time: " + str(time_difference * 10))
     outport.send(param1)   
